@@ -36,10 +36,20 @@ where days_between_applications < 30;
 
 --D. Can you provide a list with customers_ids who had only open or overdue cycles? (hint: check unique values of cycles status column)
 
-select 
-	customer_id 
+with paid_cycles as (
+	select distinct
+		customer_id
+	from cycles
+	where status = 'paid'
+)
+select distinct
+	customer_id
 from cycles
-where status in ('open', 'overdue')
+where customer_id not in (
+	select 
+		customer_id
+	from paid_cycles
+);
 
 
 --E. Can you provide an ordered list of customers over their percentage of overdue cycles per customer?

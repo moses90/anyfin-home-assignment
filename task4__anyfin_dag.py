@@ -1,20 +1,19 @@
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
-from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
 
 # Define default arguments for the DAG
 default_args = {
     'owner': 'mozes',
     'depends_on_past': False,
-    'start_date': days_ago(1),  # Start from the previous day
+    'start_date': datetime(2023, 11, 1),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
 
 # Create a DAG instance
 dag = DAG(
-    'task3_datamodel_creation',
+    'task4__datamodel_creation',
     default_args=default_args,
     schedule_interval='@daily',  # Run daily
     catchup=False,
@@ -22,9 +21,9 @@ dag = DAG(
 )
 
 # Define SQL queries for table deletion and creation
-delete_table_sql = "DROP TABLE IF EXISTS task3_datamodel RESTRICT;"
+delete_table_sql = "DROP TABLE IF EXISTS task4_datamodel RESTRICT;"
 create_table_sql = """
-create table task3_datamodel as (
+create table task4_datamodel as (
 	with applications_cte as (
 		select
 			id as application_id,
@@ -144,6 +143,7 @@ delete_table_task = PostgresOperator(
     postgres_conn_id='anyfin_postgres_connection',
     sql=delete_table_sql,
     dag=dag,
+    autocommit=True,
 )
 
 # Task to create a new table
@@ -152,10 +152,11 @@ create_table_task = PostgresOperator(
     postgres_conn_id='anyfin_postgres_connection',
     sql=create_table_sql,
     dag=dag,
+    autocommit=True,
 )
 
 # Set task dependencies
 delete_table_task >> create_table_task
 
-if __name__ == "__main__":
-    dag.cli()
+# if __name__ == "__main__":
+#     dag.cli()

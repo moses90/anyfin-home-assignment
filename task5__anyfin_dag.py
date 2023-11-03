@@ -40,7 +40,7 @@ create table task5_datamodel as (
 create_extension_task = PostgresOperator(
     task_id='encryption_extension',
     postgres_conn_id='anyfin_postgres_connection',
-    sql=delete_table_sql,
+    sql=create_encryption_extension,
     dag=dag,
     autocommit=True,
 )
